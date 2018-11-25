@@ -33,6 +33,7 @@ public class AudioPlayer {
     public AudioPlayer(@NonNull MediaPlayer mediaPlayer) {
         AudioPlayer.playerId = mediaPlayer.getAudioSessionId();
         this.mediaPlayer = mediaPlayer;
+
         this.state = State.idle;
 
         HandlerThread handlerThread = new HandlerThread("AudioPlayer");
@@ -71,6 +72,7 @@ public class AudioPlayer {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(url);
             mediaPlayer.prepareAsync();
+
 
             state = State.loading;
             for (Listener listener : listeners) {

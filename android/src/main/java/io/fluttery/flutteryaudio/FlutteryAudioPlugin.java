@@ -1,7 +1,9 @@
 package io.fluttery.flutteryaudio;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -28,13 +30,15 @@ public class FlutteryAudioPlugin implements MethodCallHandler {
 
   private static MethodChannel channel;
   private static MethodChannel visualizerChannel;
+  private String nextAudioUrl;
 
   /**
    * Plugin registration.
    */
   public static void registerWith(Registrar registrar) {
+
     channel = new MethodChannel(registrar.messenger(), "fluttery_audio");
-    channel.setMethodCallHandler(new FlutteryAudioPlugin());
+    channel.setMethodCallHandler(new FlutteryAudioPlugin(registrar.context()));
 
     visualizerChannel = new MethodChannel(registrar.messenger(), "fluttery_audio_visualizer");
     visualizerChannel.setMethodCallHandler(new FlutteryAudioVisualizerPlugin());
@@ -42,8 +46,10 @@ public class FlutteryAudioPlugin implements MethodCallHandler {
 
   private AudioPlayer player; // TODO: support multiple players.
 
-  public FlutteryAudioPlugin() {
+  public FlutteryAudioPlugin(Context appContext) {
     final MediaPlayer mediaPlayer = new MediaPlayer();
+    mediaPlayer.setWakeMode(appContext, PowerManager.PARTIAL_WAKE_LOCK);
+
     player = new AudioPlayer(mediaPlayer);
 
     player.addListener(new AudioPlayer.Listener() {
@@ -98,6 +104,7 @@ public class FlutteryAudioPlugin implements MethodCallHandler {
       @Override
       public void onPlayerCompleted() {
         Log.d(TAG, "Android -> Flutter: onPlayerCompleted()");
+        player.load(nextAudioUrl);
         channel.invokeMethod("onPlayerCompleted", null);
       }
 
@@ -140,6 +147,7 @@ public class FlutteryAudioPlugin implements MethodCallHandler {
         case "load":
           Log.d(TAG, "Loading new audio.");
           String audioUrl = call.argument("audioUrl");
+           nextAudioUrl = call.argument("nextAudioUrl");
           player.load(audioUrl);
           break;
         case "play":

@@ -302,13 +302,14 @@ class AudioPlayer {
     _onSeekCompleteds.remove(onSeekCompleted);
   }
 
-  void loadMedia(Uri uri) {
+  void loadMedia(Uri uri, Uri nextUri) {
     _log.fine('loadMedia()');
     // TODO: how to represent media
     channel.invokeMethod(
       'audioplayer/$playerId/load',
       {
-        'audioUrl': uri.toString()
+        'audioUrl': uri.toString(),
+        'nextAudioUrl': nextUri.toString(),
       },
     );
   }

@@ -16,6 +16,7 @@ class Audio extends StatefulWidget {
   }
 
   final String audioUrl;
+  final String nextAudioUrl;
   final PlaybackState playbackState;
   final List<WatchableAudioProperties> callMe;
   final Widget Function(BuildContext, AudioPlayer) playerCallback;
@@ -25,6 +26,7 @@ class Audio extends StatefulWidget {
 
   Audio({
     this.audioUrl,
+    this.nextAudioUrl,
     this.playbackState = PlaybackState.paused,
     this.callMe = const [],
     this.playerCallback,
@@ -62,7 +64,7 @@ class _AudioState extends State<Audio> {
       }
     );
 
-    _setAudioUrl(widget.audioUrl);
+    _setAudioUrl(widget.audioUrl, widget.nextAudioUrl);
     _playbackState = widget.playbackState;
   }
 
@@ -83,7 +85,7 @@ class _AudioState extends State<Audio> {
   }
 
   void _synchronizeStateWithWidget() {
-    _setAudioUrl(widget.audioUrl);
+    _setAudioUrl(widget.audioUrl, widget.nextAudioUrl);
 
     if (widget.playbackState != _playbackState) {
       _log.fine('The desired audio playback state has changed to: ${widget.playbackState}');
@@ -96,11 +98,11 @@ class _AudioState extends State<Audio> {
     }
   }
 
-  _setAudioUrl(String url) {
+  _setAudioUrl(String url, String nextUrl) {
     // If the url has changed then we need to switch audio sources.
     if (url != _audioUrl) {
       _audioUrl = url;
-      _player.loadMedia(Uri.parse(_audioUrl));
+      _player.loadMedia(Uri.parse(_audioUrl), Uri.parse(nextUrl));
     }
   }
 
